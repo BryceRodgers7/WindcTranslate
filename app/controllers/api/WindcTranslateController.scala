@@ -13,24 +13,23 @@ import play.api.libs.json._
 import models.{WindcTranslate, WindcTranslateForm}
 import play.api.data.FormError
  
-import services.WindcTranslateService
+import services.{WindcTranslateService, WindcOperationService}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
-
 import play.api.Logger
  
 class WindcTranslateController @Inject()(
     cc: ControllerComponents,
     windcTranslateService: WindcTranslateService,
+    windcOperationService: WindcOperationService,
     ws: WSClient
 ) extends AbstractController(cc) {
  
     val logger: Logger = Logger(this.getClass())
-
     implicit val windcTranslateFormat = Json.format[WindcTranslate]
  
     def getAll() = Action.async { implicit request: Request[AnyContent] =>
@@ -64,7 +63,9 @@ class WindcTranslateController @Inject()(
           val listOfNames = data.name            
           listOfNames.foreach{ n =>
             if (!(cache.exists( x => x.name == n))) {
-                logger.info("adding " + n + " to cache")
+                logger.info("must add " + n + " to cache")
+                val translatedWord = windcOperationService.gTranslate(n)
+                logger.info(n + " gTranslates to .. " + translatedWord)
                 val newWindcTranslateItem = WindcTranslate(0, n, data.isComplete)
 //            windcTranslateService.appendItem(newWindcTranslateItem).map( _ => Redirect(routes.WindcTranslateController.getAll))
                 windcTranslateService.appendItem(newWindcTranslateItem)
