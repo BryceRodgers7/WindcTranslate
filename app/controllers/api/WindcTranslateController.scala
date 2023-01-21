@@ -34,66 +34,66 @@ class WindcTranslateController @Inject()(
     implicit val windcTranslateFormat = Json.format[WindcTranslate]
  
     def getAll() = Action.async { implicit request: Request[AnyContent] =>
-        windcTranslateService.listAllItems map { items =>
-          Ok(Json.toJson(items))
-        }
+      windcTranslateService.listAllItems map { items =>
+        Ok(Json.toJson(items))
       }
+    }
 
-      def getById(id: Long) = Action.async { implicit request: Request[AnyContent] =>
-        windcTranslateService.getItem(id) map { item =>
-          Ok(Json.toJson(item))
-        }
-      }
-     
-      def add() = Action.async { implicit request: Request[AnyContent] =>
-        WindcTranslateForm.form.bindFromRequest.fold(
-          // if any error in submitted data
-          errorForm => {
-            errorForm.errors.foreach(println)
-            Future.successful(BadRequest("Error!"))
-          },
-          data => {
-            
-            val cache = Await.result(windcTranslateService.listAllItems, 5 seconds)
+    // def getById(id: Long) = Action.async { implicit request: Request[AnyContent] =>
+    //   windcTranslateService.getItem(id) map { item =>
+    //     Ok(Json.toJson(item))
+    //   }
+    // }
+    
+    def translate() = Action.async { implicit request: Request[AnyContent] =>
+      WindcTranslateForm.form.bindFromRequest.fold(
+        // if any error in submitted data
+        errorForm => {
+          errorForm.errors.foreach(println)
+          Future.successful(BadRequest("Error!"))
+        },
+        data => {
+          
+          val cache = Await.result(windcTranslateService.listAllItems, 5 seconds)
 
-            // get cache?  Future[Seq[String]]
-            // val cache = windcTranslateService.listAllItems
-            logger.info("length is " + cache.length)
-            
-            
-            val listOfNames = data.name            
-            listOfNames.foreach{ n =>
-              if (!(cache.exists( x => x.name == n))) {
-                  logger.info("adding " + n + " to cache")
-                  val newWindcTranslateItem = WindcTranslate(0, n, data.isComplete)
-  //            windcTranslateService.appendItem(newWindcTranslateItem).map( _ => Redirect(routes.WindcTranslateController.getAll))
-                  windcTranslateService.appendItem(newWindcTranslateItem)
-              } else {
-                logger.info(n + " WAS found in cache")
-              }
+          // get cache?  Future[Seq[String]]
+          // val cache = windcTranslateService.listAllItems
+          logger.info("length is " + cache.length)
+          
+          
+          val listOfNames = data.name            
+          listOfNames.foreach{ n =>
+            if (!(cache.exists( x => x.name == n))) {
+                logger.info("adding " + n + " to cache")
+                val newWindcTranslateItem = WindcTranslate(0, n, data.isComplete)
+//            windcTranslateService.appendItem(newWindcTranslateItem).map( _ => Redirect(routes.WindcTranslateController.getAll))
+                windcTranslateService.appendItem(newWindcTranslateItem)
+            } else {
+              logger.info(n + " WAS found in cache")
             }
-            Future(Redirect(routes.WindcTranslateController.getAll))
-          })
-      }
+          }
+          Future(Redirect(routes.WindcTranslateController.getAll))
+        })
+    }
      
-      def update(id: Long) = Action.async { implicit request: Request[AnyContent] =>
-        WindcTranslateForm.form.bindFromRequest.fold(
-          // if any error in submitted data
-          errorForm => {
-            errorForm.errors.foreach(println)
-            Future.successful(BadRequest("Error!"))
-          },
-          data => {
-            val windcTranslateItem = WindcTranslate(id, data.name(0), data.isComplete)
-            windcTranslateService.updateItem(windcTranslateItem).map( _ => Redirect(routes.WindcTranslateController.getAll))
-          })
-      }
+      // def update(id: Long) = Action.async { implicit request: Request[AnyContent] =>
+      //   WindcTranslateForm.form.bindFromRequest.fold(
+      //     // if any error in submitted data
+      //     errorForm => {
+      //       errorForm.errors.foreach(println)
+      //       Future.successful(BadRequest("Error!"))
+      //     },
+      //     data => {
+      //       val windcTranslateItem = WindcTranslate(id, data.name(0), data.isComplete)
+      //       windcTranslateService.updateItem(windcTranslateItem).map( _ => Redirect(routes.WindcTranslateController.getAll))
+      //     })
+      // }
      
-      def delete(id: Long) = Action.async { implicit request: Request[AnyContent] =>
-        windcTranslateService.deleteItem(id) map { res =>
-          Redirect(routes.WindcTranslateController.getAll)
-        }
-      }
+      // def delete(id: Long) = Action.async { implicit request: Request[AnyContent] =>
+      //   windcTranslateService.deleteItem(id) map { res =>
+      //     Redirect(routes.WindcTranslateController.getAll)
+      //   }
+      // }
 }
 
 

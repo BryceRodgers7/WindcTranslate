@@ -13,7 +13,7 @@ GET     /assets/*file                       controllers.Assets.versioned(path="/
 # GET     /api/windctranslate                  controllers.api.WindcTranslateController.getAll 
 
 GET     /api/windctranslate                     controllers.api.WindcTranslateController.getAll
-GET     /api/windctranslate/:id                 controllers.api.WindcTranslateController.getById(id: Long)
-POST    /api/windctranslate/add                 controllers.api.WindcTranslateController.add
-PUT     /api/windctranslate/update/:id          controllers.api.WindcTranslateController.update(id: Long)
-DELETE  /api/windctranslate/delete/:id          controllers.api.WindcTranslateController.delete(id: Long)
+# GET     /api/windctranslate/:id                 controllers.api.WindcTranslateController.getById(id: Long)
+POST    /api/windctranslate/translate           controllers.api.WindcTranslateController.translate
+# PUT     /api/windctranslate/update/:id          controllers.api.WindcTranslateController.update(id: Long)
+# DELETE  /api/windctranslate/delete/:id          controllers.api.WindcTranslateController.delete(id: Long)

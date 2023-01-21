@@ -51,21 +51,21 @@ class WindcTranslateList @Inject()(
       }
   }
  
-  def delete(id: Long): Future[Int] = {
-    dbConfig.db.run(windcTranslateList.filter(_.id === id).delete)
-  }
+  // def delete(id: Long): Future[Int] = {
+  //   dbConfig.db.run(windcTranslateList.filter(_.id === id).delete)
+  // }
  
-  def update(windcTranslateItem: WindcTranslate): Future[Int] = {
-    dbConfig.db
-      .run(windcTranslateList.filter(_.id === windcTranslateItem.id)
-            .map(x => (x.name, x.isComplete))
-            .update(windcTranslateItem.name, windcTranslateItem.isComplete)
-      )
-  }
+  // def update(windcTranslateItem: WindcTranslate): Future[Int] = {
+  //   dbConfig.db
+  //     .run(windcTranslateList.filter(_.id === windcTranslateItem.id)
+  //           .map(x => (x.name, x.isComplete))
+  //           .update(windcTranslateItem.name, windcTranslateItem.isComplete)
+  //     )
+  // }
  
-  def get(id: Long): Future[Option[WindcTranslate]] = {
-    dbConfig.db.run(windcTranslateList.filter(_.id === id).result.headOption)
-  }
+  // def get(id: Long): Future[Option[WindcTranslate]] = {
+  //   dbConfig.db.run(windcTranslateList.filter(_.id === id).result.headOption)
+  // }
  
   def listAll: Future[Seq[WindcTranslate]] = {
     dbConfig.db.run(windcTranslateList.result)
