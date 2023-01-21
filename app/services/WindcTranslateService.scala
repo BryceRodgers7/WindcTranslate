@@ -11,6 +11,10 @@ class WindcTranslateService @Inject() (items: WindcTranslateList) {
   def addItem(item: WindcTranslate): Future[String] = {
     items.add(item)
   }
+
+  def appendItem(item: WindcTranslate): Unit = {
+    items.add(item)
+  }
  
   def deleteItem(id: Long): Future[Int] = {
     items.delete(id)

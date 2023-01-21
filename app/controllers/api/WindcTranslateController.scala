@@ -17,6 +17,11 @@ import services.WindcTranslateService
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.language.postfixOps
+
+import play.api.Logger
  
 class WindcTranslateController @Inject()(
     cc: ControllerComponents,
@@ -24,6 +29,8 @@ class WindcTranslateController @Inject()(
     ws: WSClient
 ) extends AbstractController(cc) {
  
+    val logger: Logger = Logger(this.getClass())
+
     implicit val windcTranslateFormat = Json.format[WindcTranslate]
  
     def getAll() = Action.async { implicit request: Request[AnyContent] =>
@@ -46,8 +53,26 @@ class WindcTranslateController @Inject()(
             Future.successful(BadRequest("Error!"))
           },
           data => {
-            val newWindcTranslateItem = WindcTranslate(0, data.name, data.isComplete)
-            windcTranslateService.addItem(newWindcTranslateItem).map( _ => Redirect(routes.WindcTranslateController.getAll))
+            
+            val cache = Await.result(windcTranslateService.listAllItems, 5 seconds)
+
+            // get cache?  Future[Seq[String]]
+            // val cache = windcTranslateService.listAllItems
+            logger.info("length is " + cache.length)
+            
+            
+            val listOfNames = data.name            
+            listOfNames.foreach{ n =>
+              if (!(cache.exists( x => x.name == n))) {
+                  logger.info("adding " + n + " to cache")
+                  val newWindcTranslateItem = WindcTranslate(0, n, data.isComplete)
+  //            windcTranslateService.appendItem(newWindcTranslateItem).map( _ => Redirect(routes.WindcTranslateController.getAll))
+                  windcTranslateService.appendItem(newWindcTranslateItem)
+              } else {
+                logger.info(n + " WAS found in cache")
+              }
+            }
+            Future(Redirect(routes.WindcTranslateController.getAll))
           })
       }
      
@@ -59,7 +84,7 @@ class WindcTranslateController @Inject()(
             Future.successful(BadRequest("Error!"))
           },
           data => {
-            val windcTranslateItem = WindcTranslate(id, data.name, data.isComplete)
+            val windcTranslateItem = WindcTranslate(id, data.name(0), data.isComplete)
             windcTranslateService.updateItem(windcTranslateItem).map( _ => Redirect(routes.WindcTranslateController.getAll))
           })
       }
