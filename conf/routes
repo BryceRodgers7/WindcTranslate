@@ -12,7 +12,7 @@ GET     /assets/*file                       controllers.Assets.versioned(path="/
 #  api controllers mapping
 # GET     /api/windctranslate                  controllers.api.WindcTranslateController.getAll 
 
-GET     /api/windctranslate                     controllers.api.WindcTranslateController.getAll
+GET     /api/windctranslate                     controllers.api.WindcTranslateController.getCache
 # GET     /api/windctranslate/:id                 controllers.api.WindcTranslateController.getById(id: Long)
 POST    /api/windctranslate/translate           controllers.api.WindcTranslateController.translate
 # PUT     /api/windctranslate/update/:id          controllers.api.WindcTranslateController.update(id: Long)

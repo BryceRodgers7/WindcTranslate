@@ -1,26 +1,23 @@
 package controllers.api
  
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.language.postfixOps
 import javax.inject._
 import play.api.mvc._
 import play.api.libs.ws._
 import play.api.http.HttpEntity
-import akka.actor.ActorSystem
-import akka.stream.scaladsl._
-import akka.util.ByteString
 import play.api.libs.json._
-import models.{WindcTranslate, WindcTranslateForm}
 import play.api.data.FormError
- 
-import services.{WindcTranslateService, WindcOperationService}
-import scala.concurrent.ExecutionContext
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.concurrent.Await
-import scala.concurrent.duration._
-import scala.language.postfixOps
 import play.api.Logger
+import akka.actor.ActorSystem
+import akka.util.ByteString
+import akka.stream.scaladsl._
+import models.{WindcTranslate, WindcTranslateForm}
+import services.{WindcTranslateService, WindcOperationService}
  
 class WindcTranslateController @Inject()(
     cc: ControllerComponents,
@@ -32,8 +29,8 @@ class WindcTranslateController @Inject()(
     val logger: Logger = Logger(this.getClass())
     implicit val windcTranslateFormat = Json.format[WindcTranslate]
  
-    def getAll() = Action.async { implicit request: Request[AnyContent] =>
-      windcTranslateService.listAllItems map { items =>
+    def getCache() = Action.async { implicit request: Request[AnyContent] =>
+      windcTranslateService.listTranslations map { items =>
         Ok(Json.toJson(items))
       }
     }
@@ -46,21 +43,20 @@ class WindcTranslateController @Inject()(
     
     def translate() = Action.async { implicit request: Request[AnyContent] =>
       WindcTranslateForm.form.bindFromRequest.fold(
-        // if any error in submitted data
         errorForm => {
           errorForm.errors.foreach(println)
           Future.successful(BadRequest("Error!"))
         },
         data => {
           var tuples : List[(String,String)] = List()
-          val cache = Await.result(windcTranslateService.listAllItems, 5 seconds)
+          val cache = Await.result(windcTranslateService.listTranslations, 5 seconds)
           logger.info("length is " + cache.length)
-          val listOfNames = data.name            
+          val listOfNames = data.words            
           listOfNames.foreach{ n =>
             cache.find(_.translatedWord == n)
-            val newWindcTranslateItem = cache.find(_.name == n).getOrElse(WindcTranslate(0, n, windcOperationService.gTranslate(n)))
+            val newWindcTranslateItem = cache.find(_.word == n).getOrElse(WindcTranslate(0, n, windcOperationService.gTranslate(n)))
             if (newWindcTranslateItem.id == 0) { 
-              windcTranslateService.appendItem(newWindcTranslateItem)
+              windcTranslateService.addTranslation(newWindcTranslateItem)
               logger.info(n + " gTranslates to .. " + newWindcTranslateItem.translatedWord)
             } else {
               logger.info(n + " WAS found in cache.. it reads " + newWindcTranslateItem.translatedWord)

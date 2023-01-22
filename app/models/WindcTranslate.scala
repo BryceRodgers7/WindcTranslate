@@ -9,14 +9,14 @@ import slick.jdbc.JdbcProfile
 import scala.concurrent.{ExecutionContext, Future}
 import slick.jdbc.MySQLProfile.api._
  
-case class WindcTranslate(id: Long, name: String, translatedWord: String)
+case class WindcTranslate(id: Long, word: String, translatedWord: String)
  
-case class WindcTranslateFormData(name: List[String])
+case class WindcTranslateFormData(words: List[String])
  
 object WindcTranslateForm {
   val form = Form(
     mapping(
-      "name" -> list(nonEmptyText)
+      "words" -> list(nonEmptyText)
     )(WindcTranslateFormData.apply)(WindcTranslateFormData.unapply)
   )
 }
@@ -24,18 +24,17 @@ object WindcTranslateForm {
 class WindcTranslateTableDef(tag: Tag) extends Table[WindcTranslate](tag, "windctranslate") {
  
   def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
-  def name = column[String]("name")
+  def word = column[String]("word")
   def translatedWord = column[String]("translatedWord")
  
-  override def * = (id, name, translatedWord) <> (WindcTranslate.tupled, WindcTranslate.unapply)
+  override def * = (id, word, translatedWord) <> (WindcTranslate.tupled, WindcTranslate.unapply)
 }
- 
  
 class WindcTranslateList @Inject()(
     protected val dbConfigProvider: DatabaseConfigProvider
 )(implicit executionContext: ExecutionContext)
     extends HasDatabaseConfigProvider[JdbcProfile] {
- 
+
   var windcTranslateList = TableQuery[WindcTranslateTableDef]
  
   def add(windcTranslateItem: WindcTranslate): Future[String] = {
