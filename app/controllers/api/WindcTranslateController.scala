@@ -52,57 +52,31 @@ class WindcTranslateController @Inject()(
           Future.successful(BadRequest("Error!"))
         },
         data => {
-          
+          var tuples : List[(String,String)] = List()
           val cache = Await.result(windcTranslateService.listAllItems, 5 seconds)
-
-          // get cache?  Future[Seq[String]]
-          // val cache = windcTranslateService.listAllItems
           logger.info("length is " + cache.length)
-          
-          
           val listOfNames = data.name            
           listOfNames.foreach{ n =>
-            if (!(cache.exists( x => x.name == n))) {
-                logger.info("must add " + n + " to cache")
-                val translatedWord = windcOperationService.gTranslate(n)
-                logger.info(n + " gTranslates to .. " + translatedWord)
-                val newWindcTranslateItem = WindcTranslate(0, n, data.isComplete)
-//            windcTranslateService.appendItem(newWindcTranslateItem).map( _ => Redirect(routes.WindcTranslateController.getAll))
-                windcTranslateService.appendItem(newWindcTranslateItem)
+            cache.find(_.translatedWord == n)
+            val newWindcTranslateItem = cache.find(_.name == n).getOrElse(WindcTranslate(0, n, windcOperationService.gTranslate(n)))
+            if (newWindcTranslateItem.id == 0) { 
+              windcTranslateService.appendItem(newWindcTranslateItem)
+              logger.info(n + " gTranslates to .. " + newWindcTranslateItem.translatedWord)
             } else {
-              logger.info(n + " WAS found in cache")
+              logger.info(n + " WAS found in cache.. it reads " + newWindcTranslateItem.translatedWord)
             }
+            val tuple = (n, newWindcTranslateItem.translatedWord)
+            tuples = tuples:+tuple
           }
-          Future(Redirect(routes.WindcTranslateController.getAll))
+          // Future(Redirect(routes.WindcTranslateController.getAll))
+          var res = tuples.map(s => Map(s._1 -> s._2))
+
+          // Future(tuples map { tuples => 
+          //   Ok(Json.toJson(tuples))
+          // })
+
+          Future(Ok(Json.toJson(res)))
         })
     }
-     
-      // def update(id: Long) = Action.async { implicit request: Request[AnyContent] =>
-      //   WindcTranslateForm.form.bindFromRequest.fold(
-      //     // if any error in submitted data
-      //     errorForm => {
-      //       errorForm.errors.foreach(println)
-      //       Future.successful(BadRequest("Error!"))
-      //     },
-      //     data => {
-      //       val windcTranslateItem = WindcTranslate(id, data.name(0), data.isComplete)
-      //       windcTranslateService.updateItem(windcTranslateItem).map( _ => Redirect(routes.WindcTranslateController.getAll))
-      //     })
-      // }
-     
-      // def delete(id: Long) = Action.async { implicit request: Request[AnyContent] =>
-      //   windcTranslateService.deleteItem(id) map { res =>
-      //     Redirect(routes.WindcTranslateController.getAll)
-      //   }
-      // }
+    
 }
-
-
-
-//        val request: WSRequest = ws.url("https://translate.google.com/?sl=en&tl=fr&text=translate%20these%20words%20please&op=translate")
-//        val complexRequest: WSRequest =
-//            request
-//                .addHttpHeaders("Accept" -> "application/json")
-//                .addQueryStringParameters("search" -> "play")
-//                .withRequestTimeout(10000.millis)
-//        val futureResponse: Future[WSResponse] = complexRequest.get()

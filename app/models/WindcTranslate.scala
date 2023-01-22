@@ -9,15 +9,14 @@ import slick.jdbc.JdbcProfile
 import scala.concurrent.{ExecutionContext, Future}
 import slick.jdbc.MySQLProfile.api._
  
-case class WindcTranslate(id: Long, name: String, isComplete: Boolean)
+case class WindcTranslate(id: Long, name: String, translatedWord: String)
  
-case class WindcTranslateFormData(name: List[String], isComplete: Boolean)
+case class WindcTranslateFormData(name: List[String])
  
 object WindcTranslateForm {
   val form = Form(
     mapping(
-      "name" -> list(nonEmptyText),
-      "isComplete" -> boolean
+      "name" -> list(nonEmptyText)
     )(WindcTranslateFormData.apply)(WindcTranslateFormData.unapply)
   )
 }
@@ -26,9 +25,9 @@ class WindcTranslateTableDef(tag: Tag) extends Table[WindcTranslate](tag, "windc
  
   def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
-  def isComplete = column[Boolean]("isComplete")
+  def translatedWord = column[String]("translatedWord")
  
-  override def * = (id, name, isComplete) <> (WindcTranslate.tupled, WindcTranslate.unapply)
+  override def * = (id, name, translatedWord) <> (WindcTranslate.tupled, WindcTranslate.unapply)
 }
  
  
@@ -50,22 +49,6 @@ class WindcTranslateList @Inject()(
         }
       }
   }
- 
-  // def delete(id: Long): Future[Int] = {
-  //   dbConfig.db.run(windcTranslateList.filter(_.id === id).delete)
-  // }
- 
-  // def update(windcTranslateItem: WindcTranslate): Future[Int] = {
-  //   dbConfig.db
-  //     .run(windcTranslateList.filter(_.id === windcTranslateItem.id)
-  //           .map(x => (x.name, x.isComplete))
-  //           .update(windcTranslateItem.name, windcTranslateItem.isComplete)
-  //     )
-  // }
- 
-  // def get(id: Long): Future[Option[WindcTranslate]] = {
-  //   dbConfig.db.run(windcTranslateList.filter(_.id === id).result.headOption)
-  // }
  
   def listAll: Future[Seq[WindcTranslate]] = {
     dbConfig.db.run(windcTranslateList.result)
