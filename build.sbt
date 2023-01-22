@@ -19,7 +19,9 @@ libraryDependencies += "com.typesafe.play" %% "play-slick-evolutions" % "5.0.0"
 // play-slick 5.0.x is currently built and tested against version 1.4.200
 libraryDependencies += "com.h2database" % "h2" % "1.4.200"
 // sttp 
-libraryDependencies += "com.softwaremill.sttp.client3" %% "core" % "3.8.8"
+// libraryDependencies += "com.softwaremill.sttp.client3" %% "core" % "3.8.8"
+
+libraryDependencies +=  "org.scalaj" %% "scalaj-http" % "2.4.2"
 
 
 

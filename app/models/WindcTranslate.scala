@@ -11,12 +11,13 @@ import slick.jdbc.MySQLProfile.api._
  
 case class WindcTranslate(id: Long, word: String, translatedWord: String)
  
-case class WindcTranslateFormData(words: List[String])
+case class WindcTranslateFormData(words: List[String], actType: Option[String])
  
 object WindcTranslateForm {
   val form = Form(
     mapping(
-      "words" -> list(nonEmptyText)
+      "words" -> list(nonEmptyText),
+      "actType" -> optional(text)
     )(WindcTranslateFormData.apply)(WindcTranslateFormData.unapply)
   )
 }

@@ -54,7 +54,8 @@ class WindcTranslateController @Inject()(
           val listOfNames = data.words            
           listOfNames.foreach{ n =>
             cache.find(_.translatedWord == n)
-            val newWindcTranslateItem = cache.find(_.word == n).getOrElse(WindcTranslate(0, n, windcOperationService.gTranslate(n)))
+            val newWindcTranslateItem = cache.find(_.word == n).getOrElse(WindcTranslate(0, n, windcOperationService.gTranslate(n, data.actType)))
+            // val newWindcTranslateItem = cache.find(_.word == n).getOrElse(WindcTranslate(0, n, windcOperationService.gTranslate(n)))
             if (newWindcTranslateItem.id == 0) { 
               windcTranslateService.addTranslation(newWindcTranslateItem)
               logger.info(n + " gTranslates to .. " + newWindcTranslateItem.translatedWord)
