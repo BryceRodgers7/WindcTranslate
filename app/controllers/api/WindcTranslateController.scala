@@ -34,12 +34,6 @@ class WindcTranslateController @Inject()(
         Ok(Json.toJson(items))
       }
     }
-
-    // def getById(id: Long) = Action.async { implicit request: Request[AnyContent] =>
-    //   windcTranslateService.getItem(id) map { item =>
-    //     Ok(Json.toJson(item))
-    //   }
-    // }
     
     def translate() = Action.async { implicit request: Request[AnyContent] =>
       WindcTranslateForm.form.bindFromRequest.fold(
@@ -53,10 +47,10 @@ class WindcTranslateController @Inject()(
           logger.info("length is " + cache.length)
           val listOfNames = data.words            
           listOfNames.foreach{ n =>
-            cache.find(_.translatedWord == n)
             val newWindcTranslateItem = cache.find(_.word == n).getOrElse(WindcTranslate(0, n, windcOperationService.gTranslate(n, data.actType)))
-            // val newWindcTranslateItem = cache.find(_.word == n).getOrElse(WindcTranslate(0, n, windcOperationService.gTranslate(n)))
-            if (newWindcTranslateItem.id == 0) { 
+            if (newWindcTranslateItem.translatedWord == "gTranslate error while processing this word") { 
+              logger.info(n + " gTranslates had an error while processing this word .. " + newWindcTranslateItem.translatedWord)
+            } else if (newWindcTranslateItem.id == 0) { 
               windcTranslateService.addTranslation(newWindcTranslateItem)
               logger.info(n + " gTranslates to .. " + newWindcTranslateItem.translatedWord)
             } else {
@@ -65,15 +59,8 @@ class WindcTranslateController @Inject()(
             val tuple = (n, newWindcTranslateItem.translatedWord)
             tuples = tuples:+tuple
           }
-          // Future(Redirect(routes.WindcTranslateController.getAll))
           var res = tuples.map(s => Map(s._1 -> s._2))
-
-          // Future(tuples map { tuples => 
-          //   Ok(Json.toJson(tuples))
-          // })
-
-          Future(Ok(Json.toJson(res)))
+            Future(Ok(Json.toJson(res)))
         })
-    }
-    
+    }   
 }
