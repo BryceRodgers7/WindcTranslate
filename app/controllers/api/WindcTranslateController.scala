@@ -42,12 +42,14 @@ class WindcTranslateController @Inject()(
           Future.successful(BadRequest("Error!"))
         },
         data => {
+          // opportunity to use multiple-futures and for-comprehension
           var tuples : List[(String,String)] = List()
           val cache = Await.result(windcTranslateService.listTranslations, 5 seconds)
           logger.info("length is " + cache.length)
           val listOfNames = data.words            
           listOfNames.foreach{ n =>
             val newWindcTranslateItem = cache.find(_.word == n).getOrElse(WindcTranslate(0, n, windcOperationService.gTranslate(n, data.actType)))
+            // not ideal error-handling
             if (newWindcTranslateItem.translatedWord == "gTranslate error while processing this word") { 
               logger.info(n + " gTranslates had an error while processing this word .. " + newWindcTranslateItem.translatedWord)
             } else if (newWindcTranslateItem.id == 0) { 
@@ -60,7 +62,8 @@ class WindcTranslateController @Inject()(
             tuples = tuples:+tuple
           }
           var res = tuples.map(s => Map(s._1 -> s._2))
-            Future(Ok(Json.toJson(res)))
+          // if we made it this far.. return OK
+          Future(Ok(Json.toJson(res)))
         })
     }   
 }

@@ -10,6 +10,7 @@ class WindcTranslateService @Inject() (items: WindcTranslateList) {
     items.add(item)
   }
  
+  // represents some cheap db-fetch
   def listTranslations: Future[Seq[WindcTranslate]] = {
     items.listAll
   }

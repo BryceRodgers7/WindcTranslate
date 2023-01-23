@@ -9,10 +9,11 @@ case class WindcOperationServiceResponse(status: Int, body: Option[String] = Non
 
 class WindcOperationService { 
   val logger: Logger = Logger(this.getClass())
+
+  // represents an expensive operation
   def gTranslate(word: String, actType: Option[String]): String = {
     try {
-      // val act = if (actType.exists(_.trim.nonEmpty)) ("?type="+actType) else ""
-      // val response: Response[Either[String, String]] = client.send(basicRequest.get(uri"http://www.boredapi.com/api/activity"))
+      // constructing a simple request
       var url = "http://www.boredapi.com/api/activity?type=" + actType.getOrElse("")
       val response: HttpResponse[String] = Http(url).asString
       response.code match {
