@@ -8,6 +8,8 @@ Setup instructions:
   &nbsp;-install sbt 1.3.3+  
   &nbsp;-install scala 2.13+  
   &nbsp;-install play 2.0+  
+  &nbsp;-install mysql 8+  
+  &nbsp;&nbsp;-create db 'scalatestdb' and user with permissions 'testuser' and password 'testpass'
   &nbsp;-execute 'sbt run' cmd from root directory after clone  
     &nbsp;&nbsp;-play sample app should start running on default port. Visit http://localhost:9000/ to confirm  
     &nbsp;&nbsp;-test cache api with following cURL:   
