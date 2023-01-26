@@ -1,6 +1,7 @@
 This is a basic RESTful web service written in Scala and requires jdk 11.  
 
 It uses the Play Framework, MySQL, database-evolutions and Slick to implement a cache for an expensive operation 'gTranslate' which calls a public API (http://boredapi.com/activity). The gTranslate function 'translates' a word (any string) into a pseudo-random phrase returned by boredapi.com/activity, simulating a transformation of some small input into a larger output. The translated phrases are an 'activity' that a person can do, and they come with an activity category along with some other metadata. It accepts mutiple words to be translated in a single request, plus an optional 'activity type'  
+  
 Setup instructions:  
 
   &nbsp;-install jdk 11  
