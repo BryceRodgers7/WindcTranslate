@@ -22,7 +22,7 @@ Setup instructions:
           "first": "<some music-related activity>"  
         },  
         {  
-            "SecondWord": "<some music-related activity. Can possibly be same phrase as previous word."  
+           "SecondWord": "<some music-related activity. Can possibly be same phrase as previous word."  
       } ]  
 
 
